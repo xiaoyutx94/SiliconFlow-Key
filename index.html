@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiliconFlow API-Key 余额监测工具</title>
+    <link rel="icon" href="https://www.siliconflow.cn/favicon.ico">
+    <!-- 链接到外部 CSS 文件 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <img src="https://siliconflow.cn/logo-footer.svg" alt="SiliconFlow Logo" class="logo">
+                API-Key 余额监测工具
+            </h1>
+            <button id="themeToggle" class="theme-toggle">
+                <span id="themeIcon">🌙</span>
+                <span id="themeText">深色模式</span>
+            </button>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <h2>输入您的 API Keys</h2>
+                <p>每行输入一个 SiliconFlow API Key，然后点击查询。</p>
+                <textarea id="apiKeysInput" placeholder="请输入您的 SiliconFlow API Key，每行一个..."></textarea>
+                <div class="action-row">
+                    <button id="checkButton">点击查询</button>
+                    <div class="toggles-container">
+                        <div class="view-toggle">
+                            <span class="view-toggle-label">隐藏Key信息</span>
+                            <label class="switch">
+                                <input type="checkbox" id="maskToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="view-toggle">
+                            <span class="view-toggle-label">视图模式</span>
+                            <label class="switch">
+                                <input type="checkbox" id="viewToggle">
+                                <span class="slider"></span>
+                            </label>
+                            <span id="viewModeText">卡片</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loader" class="loader">
+                <div class="spinner"></div>
+                <p>正在查询中...</p>
+            </div>
+            
+            <div id="resultsSection" class="results-section card-view"></div>
+        </main>
+
+        <footer class="site-footer">
+            <p>本工具为开源项目，可直接保存到本地 (Ctrl+S) 使用，或部署在静态托管平台。</p>
+            <p>本工具非官方出品。仅用于方便查询 <a href="https://siliconflow.cn/" target="_blank">SiliconFlow</a> 账户余额。</p>
+        </footer>
+    </div>
+
+    <!-- 链接到外部 JavaScript 文件 -->
+    <script src="script.js"></script>
+</body>
+</html>
