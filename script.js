@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const viewModeText = document.getElementById('viewModeText');
     const maskToggle = document.getElementById('maskToggle');
     const apiKeysInput = document.getElementById('apiKeysInput');
-    const checkButton = document.getElementById('checkButton');
+    const checkButtonCn = document.getElementById('checkButtonCn');
+    const checkButtonCom = document.getElementById('checkButtonCom');
+    const copyAllNormalKeysBtn = document.getElementById('copyAllNormalKeysBtn');
     const loader = document.getElementById('loader');
     const resultsSection = document.getElementById('resultsSection');
     
@@ -34,7 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
         themeToggle.addEventListener('click', handleThemeToggle);
         viewToggle.addEventListener('change', handleViewToggle);
         maskToggle.addEventListener('change', () => renderResults(resultsData));
-        checkButton.addEventListener('click', handleCheckBalance);
+        checkButtonCn.addEventListener('click', () => handleCheckBalance('cn'));
+        checkButtonCom.addEventListener('click', () => handleCheckBalance('com'));
+        copyAllNormalKeysBtn.addEventListener('click', handleCopyAllNormalKeys);
         resultsSection.addEventListener('click', handleCopyKey);
     })();
 
@@ -54,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderResults(resultsData);
     }
 
-    async function handleCheckBalance() {
+    async function handleCheckBalance(apiType = 'cn') {
         const keys = apiKeysInput.value.split('\n').map(k => k.trim()).filter(Boolean);
         if (keys.length === 0) {
             alert('请输入至少一个 API Key。');
@@ -62,18 +66,53 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         loader.style.display = 'block';
-        checkButton.disabled = true;
+        checkButtonCn.disabled = true;
+        checkButtonCom.disabled = true;
         resultsSection.innerHTML = '';
         
-        const API_URL = 'https://api.siliconflow.cn/v1/user/info';
+        const API_URL = apiType === 'com' 
+            ? 'https://api.siliconflow.com/v1/user/info'
+            : 'https://api.siliconflow.cn/v1/user/info';
 
         const results = await Promise.all(keys.map(key => checkApiKey(key, API_URL)));
         
         resultsData = results;
         renderResults(resultsData);
+        
+        // 显示/隐藏复制全部按钮
+        const normalKeys = results.filter(r => !r.isError && r.status === 'normal');
+        copyAllNormalKeysBtn.style.display = normalKeys.length > 0 ? 'inline-block' : 'none';
 
         loader.style.display = 'none';
-        checkButton.disabled = false;
+        checkButtonCn.disabled = false;
+        checkButtonCom.disabled = false;
+    }
+
+    function handleCopyAllNormalKeys() {
+        const normalKeys = resultsData
+            .filter(result => !result.isError && result.status === 'normal')
+            .map(result => result.key);
+        
+        if (normalKeys.length === 0) {
+            alert('没有找到正常状态的API Key');
+            return;
+        }
+        
+        const keysText = normalKeys.join('\n');
+        navigator.clipboard.writeText(keysText).then(() => {
+            // 显示复制成功提示
+            const originalText = copyAllNormalKeysBtn.textContent;
+            copyAllNormalKeysBtn.textContent = `✅ 已复制 ${normalKeys.length} 个Key`;
+            copyAllNormalKeysBtn.disabled = true;
+            
+            setTimeout(() => {
+                copyAllNormalKeysBtn.textContent = originalText;
+                copyAllNormalKeysBtn.disabled = false;
+            }, 2000);
+        }).catch(err => {
+            console.error('复制失败: ', err);
+            alert('复制失败，请重试');
+        });
     }
 
     function handleCopyKey(e) {
@@ -172,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderTableView(results) {
         const table = document.createElement('table');
         table.className = 'results-table';
-        table.innerHTML = `<thead><tr><th>API Key</th><th>用户</th><th>总余额</th><th>状态</th></tr></thead>`;
+        table.innerHTML = `<thead><tr><th>API Key</th><th>用户</th><th>邮箱</th><th>赠送余额</th><th>充值余额</th><th>总余额</th><th>状态</th></tr></thead>`;
         const tbody = document.createElement('tbody');
         
         results.forEach(result => {
@@ -182,13 +221,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isError) {
                 row.innerHTML = `
                     <td><div class="masked-key" data-full-key="${key}">${maskApiKey(key)}</div></td>
-                    <td colspan="2">${message}</td>
+                    <td colspan="5">${message}</td>
                     <td><span class="key-status status-error">错误</span></td>`;
             } else {
                 const totalBalanceClass = status === 'warning' ? 'low-balance' : 'balance-highlight';
+                const chargeBalanceClass = (data.chargeBalance && parseFloat(data.chargeBalance) > 0) ? 'charge-balance-highlight' : '';
                 row.innerHTML = `
                     <td><div class="masked-key" data-full-key="${key}">${maskApiKey(key)}</div></td>
                     <td>${data.name || 'N/A'}</td>
+                    <td>${maskEmail(data.email)}</td>
+                    <td>${data.balance || '0.00'}</td>
+                    <td class="${chargeBalanceClass}">${data.chargeBalance || '0.00'}</td>
                     <td class="${totalBalanceClass}">${data.totalBalance || '0.00'}</td>
                     <td><span class="key-status status-${status}">${status === 'warning' ? '余额不足' : '正常'}</span></td>`;
             }
