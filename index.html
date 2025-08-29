@@ -27,7 +27,11 @@
                 <p>每行输入一个 SiliconFlow API Key，然后点击查询。</p>
                 <textarea id="apiKeysInput" placeholder="请输入您的 SiliconFlow API Key，每行一个..."></textarea>
                 <div class="action-row">
-                    <button id="checkButton">点击查询</button>
+                    <div class="query-buttons">
+                        <button id="checkButtonCn">cn查询</button>
+                        <button id="checkButtonCom">com查询</button>
+                    </div>
+                    <button id="copyAllNormalKeysBtn" class="copy-all-btn" style="display: none;">📋 复制全部正常Key</button>
                     <div class="toggles-container">
                         <div class="view-toggle">
                             <span class="view-toggle-label">隐藏Key信息</span>
