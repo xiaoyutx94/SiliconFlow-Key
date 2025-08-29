@@ -173,6 +173,20 @@ button:disabled {
     transform: none;
 }
 
+.copy-all-btn {
+    background-color: var(--success-color);
+    margin-left: 10px;
+}
+
+.copy-all-btn:hover {
+    background-color: #157347;
+}
+
+.query-buttons {
+    display: flex;
+    gap: 10px;
+}
+
 .toggles-container {
     display: flex;
     align-items: center;
